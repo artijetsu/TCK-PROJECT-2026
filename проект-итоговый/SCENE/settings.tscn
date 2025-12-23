@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://cmuqudshi20hk"]
+
+[ext_resource type="Texture2D" uid="uid://bt5422p1ml307" path="res://IMG/вселеная.webp" id="1_vrtkc"]
+[ext_resource type="Script" uid="uid://bm001masntb4e" path="res://SCENE/mainback_btn.gd" id="2_n2c5u"]
+
+[node name="Node2D3" type="Node2D"]
+
+[node name="Глав_ул_деревня" type="Sprite2D" parent="."]
+position = Vector2(577.6666, 326.5)
+scale = Vector2(2.411111, 2.411111)
+texture = ExtResource("1_vrtkc")
+
+[node name="MainbackBtn" type="Button" parent="."]
+offset_left = 48.0
+offset_top = 478.0
+offset_right = 303.0
+offset_bottom = 588.0
+theme_override_font_sizes/font_size = 74
+text = "Выйти"
+script = ExtResource("2_n2c5u")
+
+[connection signal="pressed" from="MainbackBtn" to="MainbackBtn" method="_on_pressed"]
