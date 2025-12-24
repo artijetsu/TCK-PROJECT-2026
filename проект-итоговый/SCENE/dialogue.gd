@@ -3,7 +3,7 @@ extends Control
 @export var dialogues: Array[Dictionary] = []
 @export var type_speed: float = 14.0 # скорость печати (символов в секунду)
 # Ссылка на картинку с портретом персонажа (TextureRect)
-@onready var portrait: TextureRect = $Portrait
+@onready var portrait: TextureRect = get_node_or_null("Portrait")
 # Ссылка на текст с именем персонажа (обычный Label)
 @onready var name_label: Label = $NameLabel
 # Ссылка на поле, где будет появляться текст реплики по буквам
@@ -21,6 +21,7 @@ func _ready() -> void:
 	# Добавляем в группу для легкого поиска
 	add_to_group("DialogueUI")
 	visible = false # Скрываем диалог при старте
+	process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	
 	text_label.bbcode_enabled = true
 	text_label.scroll_following = true
@@ -49,7 +50,7 @@ func show_next_line() -> void:
 
 	var entry = dialogues[current_index] # Берём текущую строку диалога
 	name_label.text = entry["name"] # Пишем имя персонажа в поле имени
-	if entry.has("portrait"): # Если в этой строке есть портрет
+	if portrait and entry.has("portrait"): # Если в этой строке есть портрет и узел портрета существует
 		portrait.texture = entry["portrait"] # ставим его картинку
 	# если портрета нет — оставляем старый или пустой
 
@@ -58,10 +59,14 @@ func show_next_line() -> void:
 
 	var total: int = int(max(text_label.get_total_character_count(), text_label.text.length())) # считаем символы
 	var duration: float = float(clamp(float(total) / max(type_speed, 1.0), 0.05, 10.0)) # время анимации
-
+	
 	tween = create_tween() # создаём анимацию набора текста
 	tween.tween_property(text_label, "visible_characters", total, duration) # показываем буквы по одной до конца строки
+	tween.finished.connect(_on_tween_finished)
 	is_typing = true # запоминаем, что сейчас идёт печать
+
+func _on_tween_finished() -> void:
+	is_typing = false
 
 # Функция, которая закрывает диалог
 func end_dialogue() -> void:
@@ -76,8 +81,14 @@ func _input(event):
 	if not visible: # Если диалог скрыт — ничего не делаем
 		return
 	
-	# Пропуск диалога на клавишу Q
+	# Выход из диалога на клавишу Q
 	if event is InputEventKey and event.pressed and event.keycode == KEY_Q:
+		end_dialogue()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Пропуск всего диалога на клавишу Space
+	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
 		end_dialogue()
 		get_viewport().set_input_as_handled()
 		return

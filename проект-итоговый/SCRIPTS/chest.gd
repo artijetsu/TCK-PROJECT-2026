@@ -64,8 +64,20 @@ func interact(body):
 			sprite.modulate = Color.YELLOW
 			# Выводим сообщение в консоль
 			print("Вы нашли сокровище!")
+			var ui = get_tree().get_first_node_in_group("ChestUI")
+			if ui == null:
+				var ps = load("res://SCENE/chest_ui.tscn")
+				if ps:
+					var inst = ps.instantiate()
+					get_tree().current_scene.add_child(inst)
+					var control = inst.get_node_or_null("CanvasLayer/Control")
+					if control and control.has_method("open"):
+						control.open()
+			else:
+				ui.open()
 		else:
-			# Если цвет уже был желтым, возвращаем его к белому (закрываем сундук)
 			sprite.modulate = Color.WHITE
-			# Выводим сообщение в консоль
 			print("Сундук закрылся.")
+			var ui2 = get_tree().get_first_node_in_group("ChestUI")
+			if ui2:
+				ui2.close()
